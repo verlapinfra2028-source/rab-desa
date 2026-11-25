@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Aplikasi RAB Desa - Kabupaten Gresik</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header><h1>Aplikasi RAB Desa</h1><p>Membuat RAB, AHSP, Backup Volume, dan Gambar dalam satu file Excel</p></header>
+<main>
+  <section class="card"><h2>1. Pilih jenis pekerjaan</h2><select id="jenis"></select><p class="hint" id="jenisInfo"></p></section>
+  <section class="card"><h2>2. Data kegiatan</h2><div id="formData" class="grid"></div></section>
+  <section class="card"><h2>3. Ukuran dan pilihan</h2><p class="hint">Sel yang dikosongkan dan bertanda <em>otomatis</em> dihitung dari isian lain. Isi angka bila ingin menggantinya.</p><div id="formInput" class="grid"></div></section>
+  <section class="card"><button id="btnBuat" class="primary">Buat file Excel</button><p id="status" class="status"></p>
+  <p class="hint">Setelah diunduh, buka di Excel/WPS lalu isi <b>harga survey</b> di sheet <b>Harga Satuan</b>. Seluruh hasil terhitung otomatis. Gambar dibuat dari ukuran yang Anda isi di sini.</p></section>
+</main>
+<footer>Koefisien: SE Dirjen Bina Konstruksi No. 47/SE/Dk/2026 (Lampiran VI Cipta Karya). Data tersimpan hanya di perangkat Anda.</footer>
+<script src="app.js"></script>
+</body>
+</html>
