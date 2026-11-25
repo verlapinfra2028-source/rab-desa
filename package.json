@@ -1,0 +1,11 @@
+{
+  "name": "rab-desa",
+  "version": "1.0.0",
+  "description": "Aplikasi RAB Desa (Kabupaten Gresik): mesin pembuat Excel RAB berbasis spesifikasi, berjalan di browser",
+  "scripts": {
+    "build": "node build_web.js",
+    "test:web": "node web_test.js cor /tmp/web_cor.xlsx"
+  },
+  "dependencies": { "exceljs": "^4.4.0" },
+  "devDependencies": { "esbuild": "^0.21.0", "jsdom": "^24.0.0", "@napi-rs/canvas": "^0.1.53" }
+}

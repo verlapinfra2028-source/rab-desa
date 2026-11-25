@@ -1,0 +1,49 @@
+'use strict';
+const { Scene, C, fmt } = require('./draw.js');
+const T = '(tanpa skala, ukuran dalam meter)';
+const mk = (cc, d, N, labels) => { const n = k => +d[k]; const L = (k, u = 'm') => labels ? (N[k] || k) : fmt(d[k]) + ' ' + u; const yes = k => String(d[k]) === 'Ya'; return { n, L, yes }; };
+const tt = (s, labels) => s + (labels ? '  (NOTASI)' : '  ' + T);
+const R = {};
+// ===== DRAINASE BATU KALI =====
+R.drainase = {
+  melintang(cc, d, N, lb) { const { n, L, yes } = mk(cc, d, N, lb); const lub = n('lub'), pb = n('pb'), pa = n('pa'), tp = n('tp'), td = n('td'), bda = n('bda'), bdb = n('bdb'), gal = n('gal'), tc = n('tcor'), tr = n('tpas'), ul = n('ul'), ut = n('ut'); const h = lub / 2, top = tp + td, cor = d.dasar !== 'Tanah (tanpa cor)';
+    const xm = h + Math.max(pb, bdb) + ul + 1.0; const S = new Scene(cc, 900, 620, tt('POTONGAN MELINTANG A-A', lb), { x0: -xm, x1: xm + 0.9, y0: -0.6, y1: top + 0.8 }, 1);
+    S.rect(-xm, -0.3, 2 * xm, 0.3 + gal, { fill: C.tanah, stroke: false }); S.rect(-h - pb - ul, 0, 2 * (h + pb + ul), gal, { fill: '#fff', stroke: false }); S.line(-xm, gal, xm, gal, { color: '#8B6B3D', dash: [5, 4] });
+    for (const s of [-1, 1]) { const x0 = s * (h + pb); S.rect(Math.min(x0, x0 + s * ul), 0, ul, ut, { fill: C.sirtu, hatch: '.', stroke: '#8B8560' });
+      S.poly([[s * h, 0], [s * (h + pb), 0], [s * (h + pa), tp], [s * h, tp]], { fill: C.pond, hatch: 'o' }); const xo = h + bdb, xi = xo - bda; S.poly([[s * h, tp], [s * xo, tp], [s * xo, top], [s * xi, top]], { fill: C.batu, hatch: 'o' });
+      if (yes('pls')) { S.line(s * h, tp, s * xi, top, { color: C.merah, lw: 3 }); S.line(s * xi, top, s * xo, top, { color: C.merah, lw: 3 }); S.line(s * xo, top - n('tl'), s * xo, top, { color: C.merah, lw: 3 }); } }
+    if (cor) { S.rect(-h, 0, lub, tr, { fill: C.pasir }); S.rect(-h, tr, lub, tc, { fill: C.lk, hatch: 'x' }); } S.text(0, tr + tc + 0.25, 'saluran', { color: '#555' });
+    S.dimH(-h - bdb + bda + 0.0 + (bdb - bda), h + bdb - bda, top + 0.25, L('lub') + ' (dasar)'); S.dimH(h + bdb - bda, h + bdb, top + 0.08, L('bda')); S.dimH(h, h + pb, -0.15, L('pb')); S.dimV(h + pb + ul + 0.3, tp, top, L('td')); S.dimV(h + pb + ul + 0.3, 0, tp, L('tp')); S.dimV(h + pb + ul + 0.8, 0, gal, L('gal'));
+    S.text(0, -0.5, 'Garis merah = plesteran + acian (sisi dalam miring, permukaan atas, topi luar)', { size: 11, color: C.merah }); return S; },
+  memanjang(cc, d, N, lb) { const { n, L, yes } = mk(cc, d, N, lb); const td = n('td'), tp = n('tp'), jp = n('jp'), gal = n('gal'); const Lsh = 6 * jp, top = td + tp; const S = new Scene(cc, 900, 460, tt('POTONGAN MEMANJANG', lb), { x0: -0.6, x1: Lsh + 1.6, y0: -0.6, y1: top + 0.6 }, 1);
+    S.rect(0, 0, Lsh, tp, { fill: C.pond, hatch: 'o' }); S.rect(0, tp, Lsh, td, { fill: C.batu, hatch: 'o' }); S.line(-0.4, gal, Lsh + 0.4, gal, { color: '#8B6B3D', dash: [5, 4] });
+    if (yes('pvc')) for (let i = 0; i <= 6; i++) S.rect(i * jp - 0.05, tp + 0.15 - 0.05, 0.1, 0.1, { fill: '#fff', stroke: C.biru, lw: 2 }); S.dimH(0, jp, tp + 0.4, L('jp')); S.dimV(Lsh + 0.2, tp, top, L('td')); S.dimV(Lsh + 0.2, 0, tp, L('tp')); S.dimV(Lsh + 0.75, 0, gal, L('gal'));
+    S.text(Lsh / 2, -0.35, lb ? 'Panjang total L' : 'Panjang total L = ' + fmt(d.L) + ' m (digambar sebagian)', { size: 11 }); return S; },
+  denah(cc, d, N, lb) { const { n, L, yes } = mk(cc, d, N, lb); const lub = n('lub'), bdb = n('bdb'), bda = n('bda'), pb = n('pb'), ul = n('ul'), jp = n('jp'); const h = lub / 2, Lsh = 6 * jp; const S = new Scene(cc, 900, 440, tt('TAMPAK ATAS (DENAH)', lb), { x0: -1.2, x1: Lsh + 1, y0: -h - pb - ul - 0.9, y1: h + pb + ul + 0.9 }, 1);
+    for (const s of [-1, 1]) { S.rect(0, s > 0 ? h + pb : -h - pb - ul, Lsh, ul, { fill: C.sirtu, hatch: '.', stroke: '#8B8560' }); S.rect(0, s > 0 ? h : -h - pb, Lsh, pb, { fill: 'rgba(0,0,0,0)', stroke: '#8B6B3D' }); S.rect(0, s > 0 ? h + bdb - bda : -h - bdb, Lsh, bda, { fill: C.batu, hatch: 'o' }); if (yes('pvc')) for (let i = 0; i <= 6; i++) S.rect(i * jp - 0.04, (s > 0 ? h + bdb - bda / 2 : -h - bdb + bda / 2) - 0.04, 0.08, 0.08, { fill: '#fff', stroke: C.biru }); }
+    S.rect(0, -h, Lsh, lub, { fill: '#D6E4F0', stroke: false }); S.line(0.3, 0, Lsh, 0, { color: C.hijau, lw: 2 }); S.text(Lsh / 2, 0.12, 'arah aliran', { color: C.hijau, size: 11 }); S.dimV(-0.3, -h, h, L('lub'), { left: true }); S.dimH(0, jp, h + pb + ul + 0.35, L('jp'));
+    S.text(Lsh / 2, -h - pb - ul - 0.55, lb ? 'Panjang total L' : 'Panjang total L = ' + fmt(d.L) + ' m (digambar sebagian)', { size: 11 }); return S; },
+  detail(cc) { const S = new Scene(cc, 900, 520, 'DETAIL PIPA DRAIN (WEEP HOLE) DAN FILTER', { x0: -1, x1: 1.7, y0: -0.4, y1: 1.6 }, 1);
+    S.rect(0, 0, 1.4, 1.2, { fill: C.batu, hatch: 'o' }); S.rect(-0.75, 0.2, 0.4, 0.68, { fill: '#E0E0E0', hatch: '.' }); S.rect(-0.75, 0.2, 0.12, 0.68, { fill: '#FFE082' }); S.rect(-0.35, 0.2, 0.03, 0.68, { fill: C.hijau, stroke: false }); S.rect(-0.35, 0.45, 1.75, 0.18, { fill: '#fff', stroke: C.biru, lw: 2 });
+    S.text(0.7, 1.28, 'dinding pasangan batu', {}); S.text(0.7, 0.54, 'pipa PVC Ø2" (suling-suling)', { color: C.biru }); S.text(-0.55, 0.02, 'filter: ijuk,\nkerikil, geotekstil', { size: 11, base: 'top' }); S.dimH(0, 1.4, -0.15, 'lebar dinding = panjang pipa'); return S; }
+};
+// ===== U-DITCH =====
+R.uditch = {
+  _g(d) { const m = String(d.uk).match(/(\d+)x(\d+)/); const B = m ? +m[1] / 100 : 0.4, H = m ? +m[2] / 100 : 0.4; return { B, H, tw: +d.tw, tlk: +d.tlk, tps: +d.tps, ul: +d.ul }; },
+  melintang(cc, d, N, lb) { const { L } = mk(cc, d, N, lb); const g = R.uditch._g(d); const { B, H, tw, tlk, tps, ul } = g; const Bo = B + 2 * tw, Ho = H + tw, hb = Bo / 2, yb = tlk + tps, ytop = yb + Ho; const tutup = String(d.tutup) === 'Ya'; const xm = hb + ul + 0.5;
+    const S = new Scene(cc, 900, 620, tt('POTONGAN MELINTANG A-A', lb), { x0: -xm - 0.2, x1: xm + 1.8, y0: -0.7, y1: ytop + 1.0 }, 1); S.rect(-xm, -0.25, 2 * xm, 0.25 + ytop, { fill: C.tanah, stroke: false }); S.rect(-hb - ul, 0, 2 * (hb + ul), ytop, { fill: '#fff', stroke: false }); S.line(-xm, ytop, xm, ytop, { color: '#8B6B3D', dash: [5, 4] });
+    for (const s of [-1, 1]) S.rect(Math.min(s * hb, s * (hb + ul)), 0, ul, ytop, { fill: C.sirtu, hatch: '.', stroke: '#8B8560' }); S.rect(-hb - 0.12, 0, Bo + 0.24, tps, { fill: C.pasir }); S.rect(-hb - 0.12, tps, Bo + 0.24, tlk, { fill: C.lk, hatch: 'x' });
+    S.poly([[-hb, yb], [hb, yb], [hb, yb + Ho], [hb - tw, yb + Ho], [hb - tw, yb + tw], [-hb + tw, yb + tw], [-hb + tw, yb + Ho], [-hb, yb + Ho]], { fill: '#C8C8C8', hatch: '/' }); if (tutup) { S.rect(-hb - 0.02, ytop, Bo + 0.04, 0.07, { fill: '#9E9E9E' }); S.text(0, ytop + 0.2, 'tutup U-Ditch', { color: '#444', size: 11 }); } S.text(0, yb + tw + H / 2, 'saluran', { color: '#555' });
+    S.dimH(-hb + tw, hb - tw, yb + tw + 0.05, L('uk', '').replace('', '') && (lb ? 'B' : fmt(B) + ' m')); S.dimV(hb + ul + 0.2, yb + tw, yb + Ho, lb ? 'H' : fmt(H) + ' m'); S.dimV(hb + ul + 0.7, 0, ytop, lb ? 'Dg' : fmt(ytop) + ' m (galian)'); S.dimH(hb, hb + ul, -0.12, L('ul'));
+    S.text(0, -0.5, 'Lantai kerja + pasir urug sudah termasuk dalam AHSP U-Ditch', { size: 11, color: '#555' }); return S; },
+  memanjang(cc, d, N, lb) { const { B, H, tw, tlk, tps } = R.uditch._g(d); const Ho = H + tw, yb = tlk + tps, n = 5, Lsh = n * 1.2; const tutup = String(d.tutup) === 'Ya'; const S = new Scene(cc, 900, 440, tt('POTONGAN MEMANJANG', lb), { x0: -0.6, x1: Lsh + 1.0, y0: -0.5, y1: yb + Ho + 0.8 }, 1);
+    S.rect(0, 0, Lsh, tps, { fill: C.pasir }); S.rect(0, tps, Lsh, tlk, { fill: C.lk, hatch: 'x' }); for (let i = 0; i < n; i++) { S.rect(i * 1.2, yb, 1.2, Ho, { fill: '#C8C8C8', hatch: '/' }); S.rect(i * 1.2 + 0.03, yb + tw, 1.14, H, { fill: '#fff', stroke: '#777', lw: 0.6 }); } if (tutup) for (let i = 0; i < Math.floor(Lsh / 0.6); i++) S.rect(i * 0.6, yb + Ho, 0.6, 0.06, { fill: '#9E9E9E' });
+    S.dimH(0, 1.2, yb + Ho + 0.3, 'panjang U-Ditch 1,20 m', { size: 10 }); S.text(Lsh / 2, -0.28, lb ? 'Panjang total L' : 'Panjang total L = ' + fmt(d.L) + ' m (digambar sebagian)', { size: 11 }); return S; },
+  denah(cc, d, N, lb) { const { B, tw, ul } = R.uditch._g(d); const Bo = B + 2 * tw, hb = Bo / 2, n = 5, Lsh = n * 1.2; const S = new Scene(cc, 900, 440, tt('TAMPAK ATAS (DENAH)', lb), { x0: -1, x1: Lsh + 0.6, y0: -hb - ul - 0.8, y1: hb + ul + 0.8 }, 1);
+    for (const s of [-1, 1]) S.rect(0, s > 0 ? hb : -hb - ul, Lsh, ul, { fill: C.sirtu, hatch: '.', stroke: '#8B8560' }); for (let i = 0; i < n; i++) { S.rect(i * 1.2, -hb, 1.2, Bo, { fill: '#C8C8C8', hatch: '/' }); S.rect(i * 1.2 + 0.03, -hb + tw, 1.14, B, { fill: '#D6E4F0', stroke: '#777', lw: 0.6 }); }
+    if (String(d.tutup) === 'Ya') for (let i = 0; i < Math.floor(Lsh / 0.6); i++) S.rect(i * 0.6, -hb, 0.6, Bo, { fill: 'rgba(158,158,158,0.9)' }); S.line(0.3, 0, Lsh, 0, { color: C.hijau, lw: 2 }); S.text(Lsh / 2, 0.1, 'arah aliran', { color: C.hijau, size: 11 }); S.dimV(-0.25, -hb, hb, lb ? 'Bo' : fmt(Bo) + ' m (luar)', { left: true }); return S; },
+  detail(cc) { const S = new Scene(cc, 900, 520, 'DETAIL SAMBUNGAN U-DITCH (POTONGAN MEMANJANG)', { x0: -0.4, x1: 3.7, y0: -0.2, y1: 1.5 }, 1);
+    for (const x of [0, 1.25]) S.poly([[x, 0.35], [x + 1.2, 0.35], [x + 1.2, 1.0], [x + 1.0, 1.0], [x + 1.0, 0.5], [x + 0.2, 0.5], [x + 0.2, 1.0], [x, 1.0]], { fill: '#C8C8C8', hatch: '/' }); S.rect(1.2, 0.35, 0.05, 0.65, { fill: C.hijau, stroke: false }); S.text(1.225, 1.15, 'sambungan\nspesi / sealant', { color: C.hijau, size: 11 });
+    S.rect(-0.1, 0.25, 2.65, 0.1, { fill: C.lk, hatch: 'x' }); S.rect(-0.1, 0, 2.65, 0.25, { fill: C.pasir }); S.text(2.6, 0.3, 'lantai kerja 5 cm', { align: 'left', size: 11 }); S.text(2.6, 0.12, 'pasir urug 10 cm', { align: 'left', size: 11 }); S.text(0.6, 0.72, 'U-Ditch\n(1,20 m)', { size: 11 }); return S; }
+};
+module.exports = { R, mk, tt, C, Scene, fmt };
